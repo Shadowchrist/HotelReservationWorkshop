@@ -8,11 +8,12 @@ public class HotelConstants {
 	public int specialWeekendRates;
 	public int rating;
 	
-	public HotelConstants(String name, int weekdayRates, int weekendRates)
+	public HotelConstants(String name, int weekdayRates, int weekendRates, int rating)
 	{
 		this.hotelName=name;
 		this.weekdayRates=weekdayRates;
 		this.weekendRates=weekendRates;
+		this.rating=rating;
 	}
 	
 	public void displayHotelDetails()
@@ -20,5 +21,6 @@ public class HotelConstants {
 		System.out.println("Hotel Name: "+ hotelName);
 		System.out.println("Weekday Rates: "+ weekdayRates);
 		System.out.println("Weekend Rates: "+ weekendRates);
+		System.out.println("User Rating: "+ rating);
 	}
 }
