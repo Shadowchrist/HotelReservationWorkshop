@@ -1,6 +1,8 @@
 package com.workshop.hotelreservation;
 
 import java.util.HashMap;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import java.util.*;
 import java.time.*;
 import java.time.format.*;
@@ -20,8 +22,13 @@ public class HotelReservation {
 			int weekdayRates = (new Scanner(System.in)).nextInt();
 			System.out.println("Enter weekend rates of the hotel");
 			int weekendRates = (new Scanner(System.in)).nextInt();
-			System.out.println("Enter user rating of the hotel");
-			int rating = (new Scanner(System.in)).nextInt();
+			int rating=0;
+			while (!checkRating(rating)) {
+				System.out.println("Enter rating of the hotel (1-5)");
+				rating = (new Scanner(System.in)).nextInt();
+				if(!checkRating(rating))
+					System.out.println("Invalid rating!");
+			}
 			System.out.println("Enter weekday rates of the hotel as part of the rewards program");
 			int specialWeekdaysRates = (new Scanner(System.in)).nextInt();
 			System.out.println("Enter weekend rates of the hotel as part of the rewards program");
@@ -37,6 +44,18 @@ public class HotelReservation {
 			} else
 				continue;
 		}
+	}
+
+	public static boolean doesDateExists(String date) {
+		Pattern p = Pattern.compile(HotelConstants.datePattern);
+		Matcher m = p.matcher(date);
+		return m.matches();
+	}
+	
+	public static boolean checkRating(int rating) {
+		if(rating<1 || rating>5)
+			return false;
+		return true;
 	}
 
 	public static boolean checkDateCorrectness(String date1, String date2) {
@@ -86,41 +105,33 @@ public class HotelReservation {
 				flag = 1;
 				int[] days = divisionOfDays(arrivalDate, departureDate);
 				int minRate = Integer.MAX_VALUE;
-				if (selection == 'Y' || selection == 'y') {
-					for (String currentHotel : system.keySet()) {
-						int temp = system.get(currentHotel).specialWeekdayRates * days[0]
+				for (String currentHotel : system.keySet()) {
+					int temp;
+					if (selection == 'Y' || selection == 'y') {
+						temp = system.get(currentHotel).specialWeekdayRates * days[0]
 								+ system.get(currentHotel).specialWeekendRates * days[1];
-						if (temp < minRate) {
-							minRate = temp;
-							cheapestHotel = currentHotel;
-						} else if (temp == minRate) {
-							String check = (system.get(currentHotel).rating > system.get(cheapestHotel).rating)
-									? currentHotel
-									: cheapestHotel;
-							cheapestHotel = check;
-						}
-					}
-				} else {
-					for (String currentHotel : system.keySet()) {
-						int temp = system.get(currentHotel).weekdayRates * days[0]
+					} else {
+						temp = system.get(currentHotel).weekdayRates * days[0]
 								+ system.get(currentHotel).weekendRates * days[1];
-						if (temp < minRate) {
-							minRate = temp;
-							cheapestHotel = currentHotel;
-						} else if (temp == minRate) {
-							String check = (system.get(currentHotel).rating > system.get(cheapestHotel).rating)
-									? currentHotel
-									: cheapestHotel;
-							cheapestHotel = check;
-						}
+					}
+					if (temp < minRate) {
+						minRate = temp;
+						cheapestHotel = currentHotel;
+					} else if (temp == minRate) {
+						String check = (system.get(currentHotel).rating > system.get(cheapestHotel).rating)
+								? currentHotel
+								: cheapestHotel;
+						cheapestHotel = check;
 					}
 				}
 				System.out.println("Cheapest hotel details: \n");
 				system.get(cheapestHotel).displayHotelDetails();
 				System.out.println("Staying for " + days[2] + " days including " + days[1] + " weekends.");
 				System.out.println("Total cost: " + minRate);
-			} else
+			} else if (!checkDateCorrectness(arrivalDate, departureDate))
 				System.out.println("Departure date cannot be before the arrival date!!!");
+			else if (!doesDateExists(arrivalDate) || !doesDateExists(departureDate))
+				System.out.println("Entered date cannot exist!!!");
 		}
 	}
 
@@ -147,10 +158,32 @@ public class HotelReservation {
 		System.out.println("Welcome to Hotel Reservation System.");
 		enterNewHotelDetails();
 		System.out.println("THE BOOKING SECTION");
-		System.out.println("Enter Arrival Date: (Format: DD/MM/YYYY)");
-		String arrivalDate = (new Scanner(System.in)).nextLine();
-		System.out.println("Enter Departure Date: (Format: DD/MM/YYYY)");
-		String departureDate = (new Scanner(System.in)).nextLine();
+		String arrivalDate="", departureDate="";
+		int check=0;
+		while (check==0) {
+			System.out.println("Enter Arrival Date: (Format: DD/MM/YYYY)");
+			arrivalDate = (new Scanner(System.in)).nextLine();
+			if(doesDateExists(arrivalDate))
+			{
+				check=1;
+				break;
+			}
+			else
+				System.out.println("Given date cannot be entered!!!");
+		}
+		check=0;
+		
+		while (check==0) {
+			System.out.println("Enter Departure Date: (Format: DD/MM/YYYY)");
+			departureDate = (new Scanner(System.in)).nextLine();
+			if(doesDateExists(departureDate))
+			{
+				check=1;
+				break;
+			}
+			else
+				System.out.println("Given date cannot be entered!!!");
+		}
 		System.out.println("Are you eligible for low charges under the Rewards Program? (Y/N)");
 		char selection = (new Scanner(System.in)).next().charAt(0);
 		System.out.println("Enter 1 to find the cheapest hotel." + "Enter 2 to find the best rated hotel(s).");
